@@ -15,9 +15,9 @@ export class CodePipelineStackBackEnd extends cdk.Stack {
     super(scope, id, props);
   
     // Replace the placeholders with environment variables
-    const gitHubOwner = process.env.GITHUB_OWNER; 
-    const gitHubRepo = process.env.GITHUB_REPO;
-    const gitHubTokenSecretName = process.env.GITHUB_TOKEN_SECRET_NAME;
+    const gitHubOwner = process.env.GITHUBOWNER; 
+    const gitHubRepo = process.env.GITHUBREPO;
+    const gitHubTokenSecretName = process.env.GITHUBTOKENSECRETNAME;
 
 
 // Create a reference to the S3 stack
