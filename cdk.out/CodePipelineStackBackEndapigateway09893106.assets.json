@@ -1,0 +1,19 @@
+{
+  "version": "30.0.0",
+  "files": {
+    "746c430af4e4be17c003590e2776d8c8dc02ebc1406b7d4ec47de486a35c4c54": {
+      "source": {
+        "path": "CodePipelineStackBackEndapigateway09893106.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "current_account-current_region": {
+          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}",
+          "objectKey": "746c430af4e4be17c003590e2776d8c8dc02ebc1406b7d4ec47de486a35c4c54.json",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-${AWS::Region}"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}

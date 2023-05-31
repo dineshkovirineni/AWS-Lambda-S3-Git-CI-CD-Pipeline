@@ -1,0 +1,19 @@
+{
+  "version": "30.0.0",
+  "files": {
+    "59d6030ba1ad71eea203aaeed4044002d5f68a6ac9f99db8ed8a19c7c8c72339": {
+      "source": {
+        "path": "LambdaStack.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "current_account-current_region": {
+          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}",
+          "objectKey": "59d6030ba1ad71eea203aaeed4044002d5f68a6ac9f99db8ed8a19c7c8c72339.json",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-${AWS::Region}"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}

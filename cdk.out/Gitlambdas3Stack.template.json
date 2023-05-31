@@ -1,0 +1,1281 @@
+{
+ "Resources": {
+  "codebuildcredentialsgithubB77275F8": {
+   "Type": "AWS::CodeBuild::SourceCredential",
+   "Properties": {
+    "AuthType": "PERSONAL_ACCESS_TOKEN",
+    "ServerType": "GITHUB",
+    "Token": "{{resolve:secretsmanager:gitlambda:SecretString:gitdinesh::}}"
+   },
+   "Metadata": {
+    "aws:cdk:path": "Gitlambdas3Stack/code-build-credentials-github/Resource"
+   }
+  },
+  "CodeBuildRole728CBADE": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "codebuild.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "Gitlambdas3Stack/CodeBuildRole/Resource"
+   }
+  },
+  "CodeBuildRoleDefaultPolicy829527DE": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "lambda:AddPermission",
+        "lambda:CreateAlias",
+        "lambda:DeleteAlias",
+        "lambda:DeleteFunctionConcurrency",
+        "lambda:PublishVersion",
+        "lambda:PutFunctionConcurrency",
+        "lambda:RemovePermission",
+        "lambda:UpdateAlias",
+        "lambda:UpdateFunctionCode",
+        "lambda:UpdateFunctionConfiguration"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::ImportValue": "Gitlambdas3Stacklambdstack94930018:ExportsOutputFnGetAttlambdafunctiongitfinalB42C2C65ArnBBF5D0C8"
+       }
+      },
+      {
+       "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":logs:",
+           {
+            "Ref": "AWS::Region"
+           },
+           ":",
+           {
+            "Ref": "AWS::AccountId"
+           },
+           ":log-group:/aws/codebuild/",
+           {
+            "Ref": "projectlambda4BC27CB1"
+           },
+           ":*"
+          ]
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":logs:",
+           {
+            "Ref": "AWS::Region"
+           },
+           ":",
+           {
+            "Ref": "AWS::AccountId"
+           },
+           ":log-group:/aws/codebuild/",
+           {
+            "Ref": "projectlambda4BC27CB1"
+           }
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "codebuild:BatchPutCodeCoverages",
+        "codebuild:BatchPutTestCases",
+        "codebuild:CreateReport",
+        "codebuild:CreateReportGroup",
+        "codebuild:UpdateReport"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":codebuild:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":report-group/",
+          {
+           "Ref": "projectlambda4BC27CB1"
+          },
+          "-*"
+         ]
+        ]
+       }
+      },
+      {
+       "Action": [
+        "s3:Abort*",
+        "s3:DeleteObject*",
+        "s3:GetBucket*",
+        "s3:GetObject*",
+        "s3:List*",
+        "s3:PutObject",
+        "s3:PutObjectLegalHold",
+        "s3:PutObjectRetention",
+        "s3:PutObjectTagging",
+        "s3:PutObjectVersionTagging"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "DeployPipelinelambdaArtifactsBucketF3E23CA5",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "DeployPipelinelambdaArtifactsBucketF3E23CA5",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:DescribeKey",
+        "kms:Encrypt",
+        "kms:GenerateDataKey*",
+        "kms:ReEncrypt*"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "DeployPipelinelambdaArtifactsBucketEncryptionKey3847379C",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "CodeBuildRoleDefaultPolicy829527DE",
+    "Roles": [
+     {
+      "Ref": "CodeBuildRole728CBADE"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "Gitlambdas3Stack/CodeBuildRole/DefaultPolicy/Resource"
+   }
+  },
+  "projectlambda4BC27CB1": {
+   "Type": "AWS::CodeBuild::Project",
+   "Properties": {
+    "Artifacts": {
+     "Type": "NO_ARTIFACTS"
+    },
+    "Environment": {
+     "ComputeType": "BUILD_GENERAL1_SMALL",
+     "Image": "aws/codebuild/standard:5.0",
+     "ImagePullCredentialsType": "CODEBUILD",
+     "PrivilegedMode": true,
+     "Type": "LINUX_CONTAINER"
+    },
+    "ServiceRole": {
+     "Fn::GetAtt": [
+      "CodeBuildRole728CBADE",
+      "Arn"
+     ]
+    },
+    "Source": {
+     "BuildSpec": {
+      "Fn::Join": [
+       "",
+       [
+        "{\n  \"version\": \"0.2\",\n  \"env\": {\n    \"variables\": {\n      \"functionName\": \"",
+        {
+         "Fn::ImportValue": "Gitlambdas3Stacklambdstack94930018:ExportsOutputReflambdafunctiongitfinalB42C2C659BE6A74F"
+        },
+        "\",\n      \"restApiId\": null,\n      \"parentResourceId\": null,\n      \"resourcePathPart\": \"myapi\",\n      \"httpMethod\": \"GET\"\n    },\n    \"shell\": \"bash\"\n  },\n  \"phases\": {\n    \"pre_build\": {\n      \"commands\": [\n        \"cd BOALandingPage\",\n        \"rm -rf node_modules\",\n        \"rm package-lock.json\",\n        \"npm install\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"npm run build\",\n        \"cp index.js build\",\n        \"cd build\",\n        \"zip -r ./build.zip .\",\n        \"aws lambda update-function-code --function-name ${functionName} --zip-file fileb://build.zip\"\n      ]\n    },\n    \"post_build\": {\n      \"commands\": [\n        \"echo Build completed on `date`\"\n      ]\n    }\n  },\n  \"artifacts\": {\n    \"base-directory\": \"BOALandingPage/build\",\n    \"files\": [\n      \"build.zip\"\n    ]\n  },\n  \"cache\": {\n    \"paths\": [\n      \"node_modules/**/*\"\n    ]\n  }\n}"
+       ]
+      ]
+     },
+     "Location": "https://github.com/dineshkovirineni1602/gitlambdas3cloud.git",
+     "ReportBuildStatus": true,
+     "Type": "GITHUB"
+    },
+    "Cache": {
+     "Type": "NO_CACHE"
+    },
+    "EncryptionKey": {
+     "Fn::GetAtt": [
+      "DeployPipelinelambdaArtifactsBucketEncryptionKey3847379C",
+      "Arn"
+     ]
+    },
+    "Name": "pipeline-project-lambda",
+    "Triggers": {
+     "FilterGroups": [
+      [
+       {
+        "Pattern": "PUSH",
+        "Type": "EVENT"
+       },
+       {
+        "Pattern": "refs/heads/main",
+        "Type": "HEAD_REF"
+       }
+      ]
+     ],
+     "Webhook": true
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "Gitlambdas3Stack/project-lambda/Resource"
+   }
+  },
+  "DeployPipelinelambdaArtifactsBucketEncryptionKey3847379C": {
+   "Type": "AWS::KMS::Key",
+   "Properties": {
+    "KeyPolicy": {
+     "Statement": [
+      {
+       "Action": "kms:*",
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":iam::",
+           {
+            "Ref": "AWS::AccountId"
+           },
+           ":root"
+          ]
+         ]
+        }
+       },
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "Gitlambdas3Stack/DeployPipeline-lambda/ArtifactsBucketEncryptionKey/Resource"
+   }
+  },
+  "DeployPipelinelambdaArtifactsBucketEncryptionKeyAlias42D987A8": {
+   "Type": "AWS::KMS::Alias",
+   "Properties": {
+    "AliasName": "alias/codepipeline-gitlambdas3stack-deploypipeline-lambda-42677d88",
+    "TargetKeyId": {
+     "Fn::GetAtt": [
+      "DeployPipelinelambdaArtifactsBucketEncryptionKey3847379C",
+      "Arn"
+     ]
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "Gitlambdas3Stack/DeployPipeline-lambda/ArtifactsBucketEncryptionKeyAlias/Resource"
+   }
+  },
+  "DeployPipelinelambdaArtifactsBucketF3E23CA5": {
+   "Type": "AWS::S3::Bucket",
+   "Properties": {
+    "BucketEncryption": {
+     "ServerSideEncryptionConfiguration": [
+      {
+       "ServerSideEncryptionByDefault": {
+        "KMSMasterKeyID": {
+         "Fn::GetAtt": [
+          "DeployPipelinelambdaArtifactsBucketEncryptionKey3847379C",
+          "Arn"
+         ]
+        },
+        "SSEAlgorithm": "aws:kms"
+       }
+      }
+     ]
+    },
+    "PublicAccessBlockConfiguration": {
+     "BlockPublicAcls": true,
+     "BlockPublicPolicy": true,
+     "IgnorePublicAcls": true,
+     "RestrictPublicBuckets": true
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "Gitlambdas3Stack/DeployPipeline-lambda/ArtifactsBucket/Resource"
+   }
+  },
+  "DeployPipelinelambdaArtifactsBucketPolicy8316A43B": {
+   "Type": "AWS::S3::BucketPolicy",
+   "Properties": {
+    "Bucket": {
+     "Ref": "DeployPipelinelambdaArtifactsBucketF3E23CA5"
+    },
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "s3:*",
+       "Condition": {
+        "Bool": {
+         "aws:SecureTransport": "false"
+        }
+       },
+       "Effect": "Deny",
+       "Principal": {
+        "AWS": "*"
+       },
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "DeployPipelinelambdaArtifactsBucketF3E23CA5",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "DeployPipelinelambdaArtifactsBucketF3E23CA5",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "Gitlambdas3Stack/DeployPipeline-lambda/ArtifactsBucket/Policy/Resource"
+   }
+  },
+  "DeployPipelinelambdaRole1193364F": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "codepipeline.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "Gitlambdas3Stack/DeployPipeline-lambda/Role/Resource"
+   }
+  },
+  "DeployPipelinelambdaRoleDefaultPolicy52CABB76": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "s3:Abort*",
+        "s3:DeleteObject*",
+        "s3:GetBucket*",
+        "s3:GetObject*",
+        "s3:List*",
+        "s3:PutObject",
+        "s3:PutObjectLegalHold",
+        "s3:PutObjectRetention",
+        "s3:PutObjectTagging",
+        "s3:PutObjectVersionTagging"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "DeployPipelinelambdaArtifactsBucketF3E23CA5",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "DeployPipelinelambdaArtifactsBucketF3E23CA5",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:DescribeKey",
+        "kms:Encrypt",
+        "kms:GenerateDataKey*",
+        "kms:ReEncrypt*"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "DeployPipelinelambdaArtifactsBucketEncryptionKey3847379C",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "DeployPipelinelambdaBuildCodeBuildlambdaCodePipelineActionRoleDB3773A4",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::GetAtt": [
+          "DeployPipelinelambdaLambdaInvokeCodePipelineActionRole9BDFC8EF",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::GetAtt": [
+          "DeployPipelinelambdadeployS3DeployCodePipelineActionRole2BB9494D",
+          "Arn"
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "DeployPipelinelambdaRoleDefaultPolicy52CABB76",
+    "Roles": [
+     {
+      "Ref": "DeployPipelinelambdaRole1193364F"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "Gitlambdas3Stack/DeployPipeline-lambda/Role/DefaultPolicy/Resource"
+   }
+  },
+  "DeployPipelinelambda4DF730A7": {
+   "Type": "AWS::CodePipeline::Pipeline",
+   "Properties": {
+    "RoleArn": {
+     "Fn::GetAtt": [
+      "DeployPipelinelambdaRole1193364F",
+      "Arn"
+     ]
+    },
+    "Stages": [
+     {
+      "Actions": [
+       {
+        "ActionTypeId": {
+         "Category": "Source",
+         "Owner": "ThirdParty",
+         "Provider": "GitHub",
+         "Version": "1"
+        },
+        "Configuration": {
+         "Owner": "dineshkovirineni1602",
+         "Repo": "gitlambdas3cloud",
+         "Branch": "main",
+         "OAuthToken": "{{resolve:secretsmanager:gitlambda:SecretString:gitdinesh::}}",
+         "PollForSourceChanges": false
+        },
+        "Name": "Github-token",
+        "OutputArtifacts": [
+         {
+          "Name": "Source"
+         }
+        ],
+        "RunOrder": 1
+       }
+      ],
+      "Name": "Source"
+     },
+     {
+      "Actions": [
+       {
+        "ActionTypeId": {
+         "Category": "Build",
+         "Owner": "AWS",
+         "Provider": "CodeBuild",
+         "Version": "1"
+        },
+        "Configuration": {
+         "ProjectName": {
+          "Ref": "projectlambda4BC27CB1"
+         }
+        },
+        "InputArtifacts": [
+         {
+          "Name": "Source"
+         }
+        ],
+        "Name": "CodeBuild-lambda",
+        "OutputArtifacts": [
+         {
+          "Name": "BuildOutput"
+         }
+        ],
+        "RoleArn": {
+         "Fn::GetAtt": [
+          "DeployPipelinelambdaBuildCodeBuildlambdaCodePipelineActionRoleDB3773A4",
+          "Arn"
+         ]
+        },
+        "RunOrder": 2
+       }
+      ],
+      "Name": "Build"
+     },
+     {
+      "Actions": [
+       {
+        "ActionTypeId": {
+         "Category": "Deploy",
+         "Owner": "AWS",
+         "Provider": "S3",
+         "Version": "1"
+        },
+        "Configuration": {
+         "BucketName": "lambda-git-react",
+         "Extract": "true"
+        },
+        "InputArtifacts": [
+         {
+          "Name": "BuildOutput"
+         }
+        ],
+        "Name": "S3Deploy",
+        "RoleArn": {
+         "Fn::GetAtt": [
+          "DeployPipelinelambdadeployS3DeployCodePipelineActionRole2BB9494D",
+          "Arn"
+         ]
+        },
+        "RunOrder": 3
+       }
+      ],
+      "Name": "deploy"
+     },
+     {
+      "Actions": [
+       {
+        "ActionTypeId": {
+         "Category": "Invoke",
+         "Owner": "AWS",
+         "Provider": "Lambda",
+         "Version": "1"
+        },
+        "Configuration": {
+         "FunctionName": {
+          "Fn::ImportValue": "Gitlambdas3Stacklambdstack94930018:ExportsOutputReflambdafunctiongitfinalB42C2C659BE6A74F"
+         }
+        },
+        "InputArtifacts": [
+         {
+          "Name": "BuildOutput"
+         }
+        ],
+        "Name": "Lambda_Invoke",
+        "RoleArn": {
+         "Fn::GetAtt": [
+          "DeployPipelinelambdaLambdaInvokeCodePipelineActionRole9BDFC8EF",
+          "Arn"
+         ]
+        },
+        "RunOrder": 4
+       }
+      ],
+      "Name": "lambda"
+     }
+    ],
+    "ArtifactStore": {
+     "EncryptionKey": {
+      "Id": {
+       "Fn::GetAtt": [
+        "DeployPipelinelambdaArtifactsBucketEncryptionKey3847379C",
+        "Arn"
+       ]
+      },
+      "Type": "KMS"
+     },
+     "Location": {
+      "Ref": "DeployPipelinelambdaArtifactsBucketF3E23CA5"
+     },
+     "Type": "S3"
+    },
+    "Name": "lambda-pipeline"
+   },
+   "DependsOn": [
+    "DeployPipelinelambdaRoleDefaultPolicy52CABB76",
+    "DeployPipelinelambdaRole1193364F"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "Gitlambdas3Stack/DeployPipeline-lambda/Resource"
+   }
+  },
+  "DeployPipelinelambdaSourceGithubtokenWebhookResource14B89F25": {
+   "Type": "AWS::CodePipeline::Webhook",
+   "Properties": {
+    "Authentication": "GITHUB_HMAC",
+    "AuthenticationConfiguration": {
+     "SecretToken": "{{resolve:secretsmanager:gitlambda:SecretString:gitdinesh::}}"
+    },
+    "Filters": [
+     {
+      "JsonPath": "$.ref",
+      "MatchEquals": "refs/heads/{Branch}"
+     }
+    ],
+    "TargetAction": "Github-token",
+    "TargetPipeline": {
+     "Ref": "DeployPipelinelambda4DF730A7"
+    },
+    "TargetPipelineVersion": 1,
+    "RegisterWithThirdParty": true
+   },
+   "Metadata": {
+    "aws:cdk:path": "Gitlambdas3Stack/DeployPipeline-lambda/Source/Github-token/WebhookResource"
+   }
+  },
+  "DeployPipelinelambdaBuildCodeBuildlambdaCodePipelineActionRoleDB3773A4": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":iam::",
+           {
+            "Ref": "AWS::AccountId"
+           },
+           ":root"
+          ]
+         ]
+        }
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "Gitlambdas3Stack/DeployPipeline-lambda/Build/CodeBuild-lambda/CodePipelineActionRole/Resource"
+   }
+  },
+  "DeployPipelinelambdaBuildCodeBuildlambdaCodePipelineActionRoleDefaultPolicy4C307B43": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "codebuild:BatchGetBuilds",
+        "codebuild:StartBuild",
+        "codebuild:StopBuild"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "projectlambda4BC27CB1",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "DeployPipelinelambdaBuildCodeBuildlambdaCodePipelineActionRoleDefaultPolicy4C307B43",
+    "Roles": [
+     {
+      "Ref": "DeployPipelinelambdaBuildCodeBuildlambdaCodePipelineActionRoleDB3773A4"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "Gitlambdas3Stack/DeployPipeline-lambda/Build/CodeBuild-lambda/CodePipelineActionRole/DefaultPolicy/Resource"
+   }
+  },
+  "DeployPipelinelambdadeployS3DeployCodePipelineActionRole2BB9494D": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":iam::",
+           {
+            "Ref": "AWS::AccountId"
+           },
+           ":root"
+          ]
+         ]
+        }
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "Gitlambdas3Stack/DeployPipeline-lambda/deploy/S3Deploy/CodePipelineActionRole/Resource"
+   }
+  },
+  "DeployPipelinelambdadeployS3DeployCodePipelineActionRoleDefaultPolicy729AA7A2": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "s3:Abort*",
+        "s3:DeleteObject*",
+        "s3:PutObject",
+        "s3:PutObjectLegalHold",
+        "s3:PutObjectRetention",
+        "s3:PutObjectTagging",
+        "s3:PutObjectVersionTagging"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":s3:::lambda-git-react"
+          ]
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":s3:::lambda-git-react/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "s3:GetBucket*",
+        "s3:GetObject*",
+        "s3:List*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "DeployPipelinelambdaArtifactsBucketF3E23CA5",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "DeployPipelinelambdaArtifactsBucketF3E23CA5",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:DescribeKey"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "DeployPipelinelambdaArtifactsBucketEncryptionKey3847379C",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "DeployPipelinelambdadeployS3DeployCodePipelineActionRoleDefaultPolicy729AA7A2",
+    "Roles": [
+     {
+      "Ref": "DeployPipelinelambdadeployS3DeployCodePipelineActionRole2BB9494D"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "Gitlambdas3Stack/DeployPipeline-lambda/deploy/S3Deploy/CodePipelineActionRole/DefaultPolicy/Resource"
+   }
+  },
+  "DeployPipelinelambdaLambdaInvokeCodePipelineActionRole9BDFC8EF": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":iam::",
+           {
+            "Ref": "AWS::AccountId"
+           },
+           ":root"
+          ]
+         ]
+        }
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "Gitlambdas3Stack/DeployPipeline-lambda/lambda/Lambda_Invoke/CodePipelineActionRole/Resource"
+   }
+  },
+  "DeployPipelinelambdaLambdaInvokeCodePipelineActionRoleDefaultPolicy3E308C6A": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "lambda:ListFunctions",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": "lambda:InvokeFunction",
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::ImportValue": "Gitlambdas3Stacklambdstack94930018:ExportsOutputFnGetAttlambdafunctiongitfinalB42C2C65ArnBBF5D0C8"
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::ImportValue": "Gitlambdas3Stacklambdstack94930018:ExportsOutputFnGetAttlambdafunctiongitfinalB42C2C65ArnBBF5D0C8"
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "s3:GetBucket*",
+        "s3:GetObject*",
+        "s3:List*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "DeployPipelinelambdaArtifactsBucketF3E23CA5",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "DeployPipelinelambdaArtifactsBucketF3E23CA5",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:DescribeKey"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "DeployPipelinelambdaArtifactsBucketEncryptionKey3847379C",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "DeployPipelinelambdaLambdaInvokeCodePipelineActionRoleDefaultPolicy3E308C6A",
+    "Roles": [
+     {
+      "Ref": "DeployPipelinelambdaLambdaInvokeCodePipelineActionRole9BDFC8EF"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "Gitlambdas3Stack/DeployPipeline-lambda/lambda/Lambda_Invoke/CodePipelineActionRole/DefaultPolicy/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/12PQU/DMAyFf8vuqaEDTVyhh03iUnWHHac0McJNmkxNAkJR/jutV4mK0/v8bNnPezgcoN7J71ApbSpLPeRzlMqI2bpm5TX2iayGfKR4Sv3Zp0lhM6FGF0naIJoP998U7eQHVHHprVgEyRFy5y0uLmvrLakfHmIqYjl3oxtacgi5XYknNnzB/tN7U4QZA+R35BWLvFqSHIihiPAE+S0pg5xkpbv83d7WpYgOA3/DKTfceKcpkndFuDklDOHhq36B+hked0MgqqY0/z4idHf9BeY74SxZAQAA"
+   },
+   "Metadata": {
+    "aws:cdk:path": "Gitlambdas3Stack/CDKMetadata/Default"
+   },
+   "Condition": "CDKMetadataAvailable"
+  }
+ },
+ "Conditions": {
+  "CDKMetadataAvailable": {
+   "Fn::Or": [
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "af-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-northeast-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-northeast-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ca-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "cn-north-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "cn-northwest-1"
+       ]
+      }
+     ]
+    },
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-north-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-3"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "me-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "sa-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-east-2"
+       ]
+      }
+     ]
+    },
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-west-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-west-2"
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

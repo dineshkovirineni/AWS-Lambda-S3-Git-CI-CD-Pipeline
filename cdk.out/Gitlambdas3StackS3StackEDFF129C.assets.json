@@ -1,0 +1,19 @@
+{
+  "version": "30.0.0",
+  "files": {
+    "2b1a984f7202fdd01a2178b609a617be50ad8d5437e42c3329f3e73343a06ce4": {
+      "source": {
+        "path": "Gitlambdas3StackS3StackEDFF129C.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "current_account-current_region": {
+          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}",
+          "objectKey": "2b1a984f7202fdd01a2178b609a617be50ad8d5437e42c3329f3e73343a06ce4.json",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-${AWS::Region}"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}
